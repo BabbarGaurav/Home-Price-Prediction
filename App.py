@@ -5,14 +5,14 @@ import numpy as np
 
 
 # Load the pickled model
-with open('/Users/gaurav/PycharmProjects/House_Price_Prediction/home_price_model.pkl', 'rb') as file:
+with open('home_price_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Load the location encoder
-with open('/Users/gaurav/PycharmProjects/House_Price_Prediction/location_encoder.pkl', 'rb') as file:
+with open('location_encoder.pkl', 'rb') as file:
     location_encoder = pickle.load(file)
 
-location_df = pd.read_csv('/Users/gaurav/PycharmProjects/House_Price_Prediction/location.csv')
+location_df = pd.read_csv('location.csv')
 location_columns = location_df['location'].tolist()
 
 st.title(':moneybag: Bengaluru House Price Prediction :house_buildings:')
