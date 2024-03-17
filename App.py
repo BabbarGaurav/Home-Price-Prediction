@@ -15,9 +15,9 @@ with open('location_encoder.pkl', 'rb') as file:
 location_df = pd.read_csv('location.csv')
 location_columns = location_df['location'].tolist()
 
-st.title(':moneybag: Bengaluru House Price Prediction :house_buildings:')
+st.title('Bengaluru House Price Prediction :house_buildings:')
 
-st.write('Enter details of your property to predict its estimated price: :man-tipping-hand:')
+st.write('Please enter a few details below to predict the house price: :man-tipping-hand:')
 
 st.markdown("""
         <style>
@@ -51,7 +51,7 @@ with col5:
 # Encode the location using the loaded encoder
 encoded_location = location_encoder.transform([location])[0]
 
-ok = st.button('Estimate Price :dollar:')
+ok = st.button('Estimate Price  :dollar:')
 
 if ok:
     # Prepare input data as a numpy array
