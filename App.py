@@ -46,7 +46,7 @@ with col4:
     location = st.selectbox('Location', location_columns)
 
 with col5:
-    total_sqrt = st.number_input('Area in Square Foot', min_value=100)
+    total_sqrt = st.number_input('Area in Square Foot', min_value=300)
 
 # Encode the location using the loaded encoder
 encoded_location = location_encoder.transform([location])[0]
