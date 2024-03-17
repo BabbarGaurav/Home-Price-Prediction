@@ -68,4 +68,4 @@ if ok:
     if predicted_price > 0:
         st.success(f'The estimated price for your property is approximately ₹ {predicted_price:0.02f} lakhs.')
     else:
-        st.error('Please check your input value in VAriable: 'Area in Square Foot'')
+        st.error('Please check your input value in Variable: Area in Square Foot')
