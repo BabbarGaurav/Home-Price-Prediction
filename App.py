@@ -1,74 +1,71 @@
-import numpy as np
+import streamlit as st
 import pandas as pd
 import pickle
-import streamlit as st
-import json
-import math
-import base64
-
-result = None
-
-with open(
-        r"C:\Users\Asus\PycharmProjects\Real_Estate_price_prediction\Model\bangalore_home_prices_model.pickle", 
-        'rb') as f:
-    __model = pickle.load(f)
-
-with open(r"C:\Users\Asus\PycharmProjects\Real_Estate_price_prediction\Model\Columns.json", 'r') as obj:
-    __data_columns = json.load(obj)["Columns"]
-    __area_types = __data_columns[4:8]
-    __locations = __data_columns[8:]
+import numpy as np
 
 
-def get_predicted_price(area_type, location, sqft, balcony, bathroom, BHK):
-    try:
-        area_index = __data_columns.index(area_type.lower())
-        loc_index = __data_columns.index(location.lower())
-    except ValueError as e:
-        area_index = -1
-        loc_index = -1
+# Load the pickled model
+with open('/Users/gaurav/PycharmProjects/House_Price_Prediction/home_price_model.pkl', 'rb') as file:
+    model = pickle.load(file)
 
-    lis = np.zeros(len(__data_columns))
-    lis[0] = sqft
-    lis[1] = bathroom
-    lis[2] = balcony
-    lis[3] = BHK
+# Load the location encoder
+with open('/Users/gaurav/PycharmProjects/House_Price_Prediction/location_encoder.pkl', 'rb') as file:
+    location_encoder = pickle.load(file)
 
-    if loc_index >= 0 and area_index >= 0:
-        lis[area_index] = 1
-        lis[loc_index] = 1
+location_df = pd.read_csv('/Users/gaurav/PycharmProjects/House_Price_Prediction/location.csv')
+location_columns = location_df['location'].tolist()
 
-    price = round(__model.predict([lis])[0], 2)
-    strp = ' lakhs'
+st.title(':moneybag: Bengaluru House Price Prediction :house_buildings:')
 
-    if math.log10(price) >= 2:
-        price = price / 100
-        price = round(price, 2)
-        strp = " crores"
+st.write('Enter details of your property to predict its estimated price: :man-tipping-hand:')
 
-    return str(price) + strp
+st.markdown("""
+        <style>
+               .block-container {
+                    padding-left: 1rem;
+                    padding-right:1rem;
+                }
+        </style>
+        """, unsafe_allow_html=True)
 
+# Create columns for user input
+col1, col2, col3 = st.columns((0.33, 0.33, 0.33))
 
-def main():
-    global result
-    st.title("Bangalore House Price Predictor")
-    html_temp = """
-           <div>
-           <h2>House Price Prediction ML app</h2>
-           </div>
-           """
-    st.markdown(html_temp, unsafe_allow_html=True)
-    total_sqft = st.text_input("Total_sqft")
-    balcony = st.text_input("Number of Balconies")
-    bathroom = st.text_input("Number of Bathrooms")
-    BHK = st.text_input("BHK")
-    area_type = st.selectbox("Area Type", __area_types)
-    location = st.selectbox("Location", __locations)
+with col1:
+    bhk = st.number_input('BHK', min_value=1, max_value=10)
 
-    if st.button("Predict"):
-        result = get_predicted_price(area_type, location, total_sqft, balcony, bathroom, BHK)
+with col2:
+    bath = st.number_input('Bath', min_value=1, max_value=10)
 
-    st.success(f"Price = {result}")
+with col3:
+    balcony = st.number_input('Balcony', min_value=1, max_value=10)
 
+col4, col5 = st.columns((0.5, 0.5))
 
-if __name__ == "__main__":
-    main()
+with col4:
+    location = st.selectbox('Location', location_columns)
+
+with col5:
+    total_sqrt = st.number_input('Area in Square Foot', min_value=100)
+
+# Encode the location using the loaded encoder
+encoded_location = location_encoder.transform([location])[0]
+
+ok = st.button('Estimate Price :dollar:')
+
+if ok:
+    # Prepare input data as a numpy array
+    input_data = pd.DataFrame({
+        'total_sqft': [total_sqrt],
+        'bath': [bath],
+        'balcony': [balcony],
+        'bhk': [bhk],
+        'location_encoded': [encoded_location]
+    })
+
+    predicted_price = model.predict(input_data)[0]
+
+    if predicted_price > 0:
+        st.success(f'The estimated price for your property is approximately ₹ {predicted_price:0.02f} lakhs.')
+    else:
+        st.error('There may be an error with the prediction. Please check your input values or contact the developer.')
